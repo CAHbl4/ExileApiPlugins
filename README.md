@@ -74,7 +74,11 @@ namespace MyPlugin
         public override void Render()
         {
             DebugWindow.LogMsg("My plugin works!", 20f);
-            Graphics.DrawBox(new RectangleF(10, 10, 100, 100), Color.Red);
+            
+            if(Settings.MyCheckboxOption)
+            {
+                Graphics.DrawBox(new RectangleF(10, 10, 100, 100), Color.Red);
+            }
         }
     }
 }
@@ -110,9 +114,9 @@ public override bool Initialise()
 
 **AreaChange(AreaInstance area)** called after player changed area.
 
-**EntityAddedAny(Entity entity)** called once entity appear in range. Entity is cached and will not triggered again if entity go out of range then appear again .
+**EntityAddedAny(Entity entity)** called once entity appear in range. Entity is cached and will not triggered again if entity go out of range then appear again.
 
-**EntityAdded(Entity entity)** called once entity appear in range. Same as EntityAddedAny, but will trigger if Monster back to visible range. This is more monnonly used.
+**EntityAdded(Entity entity)** called once entity appear in range. Same as EntityAddedAny, but will trigger if Monster back to visible range. This is more commonly used.
 
 **EntityRemoved(Entity entity)** Called when entity removed from cache (probably fo all entities on area change too, not sure).
 
@@ -208,4 +212,66 @@ private void TickLogic()
 {
     //Do your logic here (separate thread).
 }
+```
+
+## Coroutines (for delays in code)
+If you need to make some code that need to do some delays (like drop inventory items, enabling auras, etc.) do it in routines (don't use Thread.Sleep in main thread!, it will slow down other plugins!).
+
+```
+private Coroutine CoroutineWorker;
+private const string coroutineName = "my example routine";
+   
+public override Job Tick()
+{
+    if (Settings.DropHotkey.PressedOnce())
+    {
+            CoroutineWorker = new Coroutine(ProcessInventoryItems(), this, coroutineName);
+            Core.ParallelRunner.Run(CoroutineWorker);
+    }
+    
+    return null;
+}
+
+private IEnumerator ProcessInventoryItems()
+{
+    //Do your code here
+    yield return new WaitTime(100); //Here is example for 100ms delay
+}
+```
+
+You can also stop/abort routine in any moment:
+```
+private void StopRoutine()
+{
+    if (CoroutineWorker != null && !CoroutineWorker.IsDone)
+    {
+        CoroutineWorker = Core.ParallelRunner.FindByName(coroutineName);
+        CoroutineWorker?.Done();
+    }
+}
+```
+
+Also you can check if routine is processing too much time and stop it:
+```
+public override Job Tick()
+{
+    ...
+    
+    if (CoroutineWorker != null && CoroutineWorker.Running && DebugTimer.ElapsedMilliseconds > 15000)
+    {
+        LogError($"Routine stopped because work more than 15 sec.", 15);
+        CoroutineWorker?.Done();
+    }
+    
+    return null;
+}
+
+```
+
+Available delay functionality from API:
+```
+yield return new WaitTime(100); //Delay for 100ms
+yield return new WaitFunction(() => isMyBoolEnabled); //wait for some condition. Instead of this can be a function that returns bool (no args)
+yield return new WaitRender(3); //Skips the given amount of render frames
+yield return new WaitRandom(100, 300); //Wait for random amount of milliseconds
 ```
