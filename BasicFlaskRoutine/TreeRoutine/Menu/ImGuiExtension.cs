@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using ExileCore;
-using ImGuiNET;
-using ExileCore.Shared;
-using SharpDX;
 using ExileCore.Shared.Nodes;
+using ImGuiNET;
+using SharpDX;
 using ImGuiVector2 = System.Numerics.Vector2;
 using ImGuiVector4 = System.Numerics.Vector4;
 
@@ -20,14 +19,14 @@ namespace TreeRoutine.Menu
         public static int IntSlider(string labelString, int value, int minValue, int maxValue)
         {
             var refValue = value;
-            ImGui.SliderInt(labelString, ref refValue, minValue, maxValue, "%.00f");
+            ImGui.SliderInt(labelString, ref refValue, minValue, maxValue);
             return refValue;
         }
 
         public static int IntSlider(string labelString, string sliderString, int value, int minValue, int maxValue)
         {
             var refValue = value;
-            ImGui.SliderInt(labelString, ref refValue, minValue, maxValue, $"{sliderString}: {value}");
+            ImGui.SliderInt(labelString, ref refValue, minValue, maxValue);
             return refValue;
         }
 
@@ -41,7 +40,7 @@ namespace TreeRoutine.Menu
         public static int IntSlider(string labelString, string sliderString, RangeNode<int> setting)
         {
             var refValue = setting.Value;
-            ImGui.SliderInt(labelString, ref refValue, setting.Min, setting.Max, $"{sliderString}: {setting.Value}");
+            ImGui.SliderInt(labelString, ref refValue, setting.Min, setting.Max);
             return refValue;
         }
 
@@ -128,6 +127,64 @@ namespace TreeRoutine.Menu
             {
                 ImGui.SetTooltip(desc);
             }
+        }
+
+        public static int ComboBox(string sideLabel, int currentSelectedItem, List<string> objectList)
+        {
+            ImGui.Combo(sideLabel, ref currentSelectedItem, objectList.ToArray(), objectList.Count);
+
+            return currentSelectedItem;
+        }
+        public static string ComboBox(string sideLabel, string currentSelectedItem, List<string> objectList, ImGuiComboFlags comboFlags = ImGuiComboFlags.HeightRegular)
+        {
+            if (ImGui.BeginCombo(sideLabel, currentSelectedItem, comboFlags))
+            {
+                var refObject = currentSelectedItem;
+                for (var n = 0; n < objectList.Count; n++)
+                {
+                    var isSelected = refObject == objectList[n];
+                    if (ImGui.Selectable(objectList[n], isSelected)) return objectList[n];
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+
+                ImGui.EndCombo();
+            }
+
+            return currentSelectedItem;
+        }
+        public static string ComboBox(string sideLabel, string currentSelectedItem, List<string> objectList, out bool didChange, ImGuiComboFlags comboFlags = ImGuiComboFlags.HeightRegular)
+        {
+            if (ImGui.BeginCombo(sideLabel, currentSelectedItem, comboFlags))
+            {
+                var refObject = currentSelectedItem;
+                for (var n = 0; n < objectList.Count; n++)
+                {
+                    var isSelected = refObject == objectList[n];
+                    if (ImGui.Selectable(objectList[n], isSelected))
+                    {
+                        didChange = true;
+                        return objectList[n];
+                    }
+                    if (isSelected) ImGui.SetItemDefaultFocus();
+                }
+
+                ImGui.EndCombo();
+            }
+
+            didChange = false;
+            return currentSelectedItem;
+        }
+
+        public static string InputText(string label, string currentValue, uint maxLength, ImGuiInputTextFlags flags)
+        {
+            byte[] buff = new byte[maxLength];
+            if (!String.IsNullOrEmpty(currentValue))
+            {
+                byte[] currentValueBytes = Encoding.UTF8.GetBytes(currentValue);
+                Array.Copy(currentValueBytes, buff, currentValueBytes.Length);
+            }
+            ImGui.InputText(label, buff, maxLength, flags);
+            return Encoding.Default.GetString(buff).TrimEnd('\0');
         }
 
         public static Keys HotkeySelector(string buttonName, Keys currentKey)

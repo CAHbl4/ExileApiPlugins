@@ -2,10 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExileCore;
-using ExileCore.PoEMemory.MemoryObjects;
-using ExileCore.PoEMemory;
 using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared.Enums;
 
 namespace TreeRoutine.DefaultBehaviors.Helpers
@@ -157,6 +155,11 @@ namespace TreeRoutine.DefaultBehaviors.Helpers
                 if (flask.Mods.ItemRarity == ItemRarity.Unique)
                     continue;
 
+                if (mod.Name == "FlaskEffectNotRemovedOnFullMana")
+                {
+                    flask.RemovedWhenFull = false;
+                    flask.BuffString2 = "flask_effect_mana_not_removed_when_full";
+                }
 
                 //Checking flask mods.
                 if (!Core.Cache.FlaskInfo.FlaskMods.TryGetValue(mod.Name, out FlaskActions action2))

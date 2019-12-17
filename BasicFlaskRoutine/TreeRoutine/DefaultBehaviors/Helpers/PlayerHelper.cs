@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ExileCore;
 using ExileCore.PoEMemory.Components;
+using ExileCore.Shared.Enums;
 
 namespace TreeRoutine.DefaultBehaviors.Helpers
 {
@@ -64,7 +64,7 @@ namespace TreeRoutine.DefaultBehaviors.Helpers
 
             foreach (var buff in buffs)
             {
-                if (!String.IsNullOrEmpty(buff) && !playerBuffs.Any(x => x.Name == buff))
+                if (!String.IsNullOrEmpty(buff) && !playerBuffs.Any(x => !String.IsNullOrWhiteSpace(x.Name) && buff.StartsWith(x.Name)))
                 {
                     return false;
                 }
@@ -72,6 +72,15 @@ namespace TreeRoutine.DefaultBehaviors.Helpers
             return true;
         }
 
+        public int? getPlayerStat(string playerStat)
+        {
+            int statValue = 0;
+            
+            if (!Core.GameController.EntityListWrapper.Player.Stats.TryGetValue((GameStat)Core.GameController.Files.Stats.records[playerStat].ID, out statValue))
+                return null;
+
+            return statValue;
+        }
 
         public Boolean playerDoesNotHaveAnyOfBuffs(List<String> buffs)
         {
@@ -86,7 +95,7 @@ namespace TreeRoutine.DefaultBehaviors.Helpers
 
             foreach (var buff in buffs)
             {
-                if (!String.IsNullOrEmpty(buff) && playerBuffs.Any(x => x.Name == buff))
+                if (!String.IsNullOrEmpty(buff) && playerBuffs.Any(x => !String.IsNullOrWhiteSpace(x.Name) && buff.StartsWith(x.Name)))
                 {
                     return false;
                 }

@@ -10,8 +10,8 @@ using TreeRoutine.Menu;
 using ImGuiNET;
 using System.Diagnostics;
 using ExileCore;
-using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.PoEMemory.Components;
+using ExileCore.PoEMemory.MemoryObjects;
 using ExileCore.Shared;
 using ExileCore.Shared.Enums;
 using TreeRoutine.TreeSharp;
@@ -164,7 +164,7 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
         private Composite CreateManaPotionComposite()
         {
             return new Decorator((x => PlayerHelper.isManaBelowPercentage(Settings.ManaPotion) || PlayerHelper.isManaBelowValue(Settings.MinManaFlask)),
-                new Decorator((x => PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_effect_mana" })),
+                new Decorator((x => PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_effect_mana", "flask_effect_mana_not_removed_when_full" })),
                     new PrioritySelector(
                         CreateUseFlaskAction(FlaskActions.Mana, false),
                         CreateUseFlaskAction(FlaskActions.Hybrid, false)
@@ -175,7 +175,7 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
 
         private Composite CreateSpeedPotionComposite()
         {
-            return new Decorator((x => Settings.SpeedFlaskEnable && Settings.MinMsPlayerMoving <= PlayerMovingStopwatch.ElapsedMilliseconds && (PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_bonus_movement_speed", "flask_utility_sprint" }) && (!Settings.SilverFlaskEnable || PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_utility_haste" })))),
+            return new Decorator((x => Settings.SpeedFlaskEnable && Settings.MinMsPlayerMoving <= PlayerMovingStopwatch.ElapsedMilliseconds && (PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_bonus_movement_speed", "flask_utility_sprint" }) || (!Settings.SilverFlaskEnable || PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "flask_utility_haste" })))),
                 new PrioritySelector(
                     new Decorator((x => Settings.QuicksilverFlaskEnable), CreateUseFlaskAction(FlaskActions.Speedrun)),
                     new Decorator((x => Settings.SilverFlaskEnable), CreateUseFlaskAction(FlaskActions.OFFENSE_AND_SPEEDRUN))
