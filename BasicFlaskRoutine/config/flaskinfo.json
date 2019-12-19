@@ -139,6 +139,7 @@
     "FlaskBuffKnockbackWhileHealing": 0,
     "FlaskBuffStunRecoveryWhileHealing": 0,
     "FlaskBuffMovementSpeedWhileHealing": 7,
+    "FlaskBuffAttackSpeedWhileHealing": 8,
     "FlaskDispellsPoison": 9,
     "FlaskDispellsBurning": 11,
     "FlaskRemovesShock": 12,
