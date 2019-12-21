@@ -101,7 +101,7 @@ namespace PickIt
             Settings.TimeBeforeNewClick.Value = ImGuiExtension.IntSlider("Time wait for new click", Settings.TimeBeforeNewClick);
             //Settings.OverrideItemPickup.Value = ImGuiExtension.Checkbox("Item Pickup Override", Settings.OverrideItemPickup); ImGui.SameLine();
             //ImGuiExtension.ToolTip("Override item.CanPickup\n\rDO NOT enable this unless you know what you're doing!");
-
+            
             var tempRef = false;
             if (ImGui.CollapsingHeader("Pickit Rules", TreeNodeFlags.Framed | TreeNodeFlags.DefaultOpen))
             {
@@ -426,7 +426,7 @@ namespace PickIt
                 pickItemUp = true;
             }
 
-            #endregion
+            #endregion 
 
             return pickItemUp;
         }
@@ -448,12 +448,8 @@ namespace PickIt
                                 x.ItemOnGround?.Path != null &&
                                 x.IsVisible && x.Label.GetClientRectCache.Center.PointInRectangle(rect) &&
                                 (x.CanPickUp || x.MaxTimeForPickUp.TotalSeconds <= 0) || x.ItemOnGround?.Path == morphPath)
-
                     .Select(x => new CustomItem(x, GameController.Files,
-                        x.ItemOnGround.GetComponent<Positioned>().GridPos
-
-                            .Distance(playerPos), _weightsRules, x.ItemOnGround?.Path == morphPath))
-
+                        x.ItemOnGround.DistancePlayer, _weightsRules, x.ItemOnGround?.Path == morphPath))
                     .OrderByDescending(x => x.Weight).ThenBy(x => x.Distance).ToList();
             }
             else
@@ -463,12 +459,8 @@ namespace PickIt
                                 x.ItemOnGround?.Path != null &&
                                 x.IsVisible && x.Label.GetClientRectCache.Center.PointInRectangle(rect) &&
                                 (x.CanPickUp || x.MaxTimeForPickUp.TotalSeconds <= 0) || x.ItemOnGround?.Path == morphPath)
-
                     .Select(x => new CustomItem(x, GameController.Files,
-                        x.ItemOnGround.GetComponent<Positioned>().GridPos
-
-                            .Distance(playerPos), _weightsRules, x.ItemOnGround?.Path == morphPath))
-
+                        x.ItemOnGround.DistancePlayer, _weightsRules, x.ItemOnGround?.Path == morphPath))
                     .OrderBy(x => x.Distance).ToList();
             }
 
@@ -491,12 +483,11 @@ namespace PickIt
             var rectangleOfGameWindow = GameController.Window.GetWindowRectangleTimeCache;
             var oldMousePosition = Mouse.GetCursorPositionVector();
             _clickWindowOffset = rectangleOfGameWindow.TopLeft;
+            rectangleOfGameWindow.Inflate(-55, -55);
             centerOfItemLabel.X += rectangleOfGameWindow.Left;
             centerOfItemLabel.Y += rectangleOfGameWindow.Top;
-            rectangleOfGameWindow.Inflate(-155, -100);
-            rectangleOfGameWindow.Height -= 50;
 
-            if (!rectangleOfGameWindow.Contains(centerOfItemLabel))
+            if (!rectangleOfGameWindow.Intersects(new RectangleF(centerOfItemLabel.X, centerOfItemLabel.Y, 3, 3)))
             {
                 FullWork = true;
                 //LogMessage($"Label outside game window. Label: {centerOfItemLabel} Window: {rectangleOfGameWindow}", 5, Color.Red);
