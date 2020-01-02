@@ -102,6 +102,14 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
             }
         }
 
+        private bool IsToggleKeyPressed()
+        {
+            var state = Input.GetKeyState(Settings.ToggleKey.Value);
+            if (Settings.Debug)
+                LogMessage($"Togglekey state: {state}");
+            return state;
+        }
+
         private Composite CreateTree()
         {
             return new Decorator(x => TreeHelper.CanTick() && !PlayerHelper.isPlayerDead() && (!Cache.InHideout || Settings.EnableInHideout) && PlayerHelper.playerDoesNotHaveAnyOfBuffs(new List<string>() { "grace_period" }),
@@ -185,7 +193,7 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
 
         private Composite CreateDefensivePotionComposite()
         {
-            return new Decorator((x => Settings.DefensiveFlaskEnable && (PlayerHelper.isHealthBelowPercentage(Settings.HPPercentDefensive) || PlayerHelper.isEnergyShieldBelowPercentage(Settings.ESPercentDefensive) || Settings.DefensiveMonsterCount > 0 && HasEnoughNearbyMonsters(Settings.DefensiveMonsterCount, Settings.DefensiveMonsterDistance, Settings.DefensiveCountNormalMonsters, Settings.DefensiveCountRareMonsters, Settings.DefensiveCountMagicMonsters, Settings.DefensiveCountUniqueMonsters))),
+            return new Decorator((x => Settings.DefensiveFlaskEnable && (!Settings.DefensiveFlaskEnableOnlyWithToggle || IsToggleKeyPressed()) && (PlayerHelper.isHealthBelowPercentage(Settings.HPPercentDefensive) || PlayerHelper.isEnergyShieldBelowPercentage(Settings.ESPercentDefensive) || Settings.DefensiveMonsterCount > 0 && HasEnoughNearbyMonsters(Settings.DefensiveMonsterCount, Settings.DefensiveMonsterDistance, Settings.DefensiveCountNormalMonsters, Settings.DefensiveCountRareMonsters, Settings.DefensiveCountMagicMonsters, Settings.DefensiveCountUniqueMonsters))),
                 new PrioritySelector(
                     CreateUseFlaskAction(FlaskActions.Defense),
                     new Decorator((x => Settings.OffensiveAsDefensiveEnable), CreateUseFlaskAction(new List<FlaskActions> { FlaskActions.OFFENSE_AND_SPEEDRUN, FlaskActions.Defense }, ignoreFlasksWithAction: (() => Settings.DisableLifeSecUse ? new List<FlaskActions>() { FlaskActions.Life, FlaskActions.Mana, FlaskActions.Hybrid } : null)))
@@ -196,7 +204,7 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
         private Composite CreateOffensivePotionComposite()
         {
             return new PrioritySelector(
-                new Decorator((x => Settings.OffensiveFlaskEnable && (PlayerHelper.isHealthBelowPercentage(Settings.HPPercentOffensive) || PlayerHelper.isEnergyShieldBelowPercentage(Settings.ESPercentOffensive) || Settings.OffensiveMonsterCount > 0 && HasEnoughNearbyMonsters(Settings.OffensiveMonsterCount, Settings.OffensiveMonsterDistance, Settings.OffensiveCountNormalMonsters, Settings.OffensiveCountRareMonsters, Settings.OffensiveCountMagicMonsters, Settings.OffensiveCountUniqueMonsters))),
+                new Decorator((x => Settings.OffensiveFlaskEnable && (!Settings.DefensiveFlaskEnableOnlyWithToggle || IsToggleKeyPressed()) && (PlayerHelper.isHealthBelowPercentage(Settings.HPPercentOffensive) || PlayerHelper.isEnergyShieldBelowPercentage(Settings.ESPercentOffensive) || Settings.OffensiveMonsterCount > 0 && HasEnoughNearbyMonsters(Settings.OffensiveMonsterCount, Settings.OffensiveMonsterDistance, Settings.OffensiveCountNormalMonsters, Settings.OffensiveCountRareMonsters, Settings.OffensiveCountMagicMonsters, Settings.OffensiveCountUniqueMonsters))),
                     CreateUseFlaskAction(new List<FlaskActions> { FlaskActions.Offense, FlaskActions.OFFENSE_AND_SPEEDRUN }, ignoreFlasksWithAction: (() => Settings.DisableLifeSecUse ?  new List<FlaskActions>() { FlaskActions.Life, FlaskActions.Mana, FlaskActions.Hybrid} : null)))
             );
         }
@@ -426,6 +434,8 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
                 Settings.TicksPerSecond.Value = ImGuiExtension.IntSlider("Ticks Per Second", Settings.TicksPerSecond); ImGuiExtension.ToolTipWithText("(?)", "Determines how many times the plugin checks flasks every second.\nLower for less resources, raise for faster response (but higher chance to chug potions).");
                 ImGui.Separator();
                 Settings.Debug.Value = ImGuiExtension.Checkbox("Debug Mode", Settings.Debug);
+                ImGui.Separator();
+                Settings.ToggleKey.Value = ImGuiExtension.HotkeySelector("Toggle key", Settings.ToggleKey);
                 ImGui.TreePop();
             }
 
@@ -525,6 +535,8 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
                 {
                     Settings.DefensiveFlaskEnable.Value =
                         ImGuiExtension.Checkbox("Enable", Settings.DefensiveFlaskEnable);
+                    Settings.DefensiveFlaskEnableOnlyWithToggle.Value =
+                        ImGuiExtension.Checkbox("Enable only with toggle", Settings.DefensiveFlaskEnableOnlyWithToggle);
                     ImGui.Spacing();
                     ImGui.Separator();
                     Settings.HPPercentDefensive.Value =
@@ -555,6 +567,8 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
                 {
                     Settings.OffensiveFlaskEnable.Value =
                         ImGuiExtension.Checkbox("Enable", Settings.OffensiveFlaskEnable);
+                    Settings.OffensiveFlaskEnableOnlyWithToggle.Value =
+                        ImGuiExtension.Checkbox("Enable only with toggle", Settings.OffensiveFlaskEnableOnlyWithToggle);
                     ImGui.Spacing();
                     ImGui.Separator();
                     Settings.HPPercentOffensive.Value =
