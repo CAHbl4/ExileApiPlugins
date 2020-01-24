@@ -91,7 +91,7 @@ namespace TreeRoutine.Routine.BasicFlaskRoutine
         private void UpdatePlayerMovingStopwatch()
         {
             var player = GameController.Player.GetComponent<Actor>();
-            if (player != null && player.Address != 0 && player.isMoving)
+            if (player != null && player.Address != 0 && (player.isMoving || (player.CurrentAction != null && player.CurrentAction.Skill.Name == "Cyclone")) )
             {
                 if (!PlayerMovingStopwatch.IsRunning)
                     PlayerMovingStopwatch.Start();
