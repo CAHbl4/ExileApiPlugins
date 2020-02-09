@@ -76,6 +76,7 @@
     <Compile Include="BasicFlaskRoutine\BasicFlaskRoutine.cs" />
     <Compile Include="BasicFlaskRoutine\BasicFlaskRoutineSettings.cs" />
     <Compile Include="BasicFlaskRoutine\Flask\FlaskSetting.cs" />
+    <None Include="app.config" />
     <None Include="config\debuffPanel.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -43,7 +43,7 @@
       <HintPath>..\..\..\..\PoeHelper\SharpDX.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SharpDX.Desktop, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+    <Reference Include="SharpDX.Desktop">
       <HintPath>..\..\..\..\PoeHelper\SharpDX.Desktop.dll</HintPath>
       <Private>False</Private>
     </Reference>
